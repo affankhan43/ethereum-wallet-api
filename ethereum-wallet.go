@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"context"
+	"database/sql"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,7 +28,7 @@ func main() {
 
 func CreateAddress(c *gin.Context) {
 	var required Required
-	if err := c.BindJSON(&required); err != nil || required.Coin != "ETH" || required.Message != "pixi_get_address" || required.Key != "seg_pixiu" {
+	if err := c.BindJSON(&required); err != nil || required.Coin != "ETH" || required.Message != "chow_getaddress" || required.Key != "getaccess" {
 		c.JSON(200, gin.H{
 			"success": false,
 			"message": "Access Denied",
