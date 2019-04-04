@@ -4,6 +4,7 @@ import (
 	"os"
 	"fmt"
 	"log"
+	"time"
 	"bytes"
 	"reflect"
 	//"context"
@@ -24,6 +25,9 @@ type Required struct {
 
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+        log.Print("No .env file found")
+    }
 	r := gin.Default()
 	authorized := r.Group("/", gin.BasicAuth(gin.Accounts{
 		"ethAPI": "password",
@@ -41,7 +45,9 @@ func CreateAddress(c *gin.Context) {
 			"message": "Access Denied",
 		})
 	} else {
-		db, err := sql.Open("mysql", "root@tcp(127.0.0.1:3306)/ethereum")
+		mysql_string:=os.Getenv("Mysql_access")+"@tcp("+os.Getenv("Mysql_link")+")/ethereum"
+		fmt.Println(mysql_string)
+		db, err := sql.Open("mysql", mysql_string)
 		if err != nil {
 			c.JSON(200,gin.H{
 				"success":false,
@@ -67,7 +73,8 @@ func CreateAddress(c *gin.Context) {
 				pvEn := SplitSubN(pvKey,35)
 				godotenv.Load()
 				address := crypto.PubkeyToAddress(*publicKeyECDSA).Hex()
-				qrr, err := db.Query("INSERT INTO keystore (`label`,`address`,`key_data`,`key_next`) values ('test',?,hex(aes_encrypt(?,?)),hex(aes_encrypt(?,?)));",address,pvEn[0],os.Getenv("Secret_Key1"),pvEn[1],os.Getenv("Secret_Key2"))
+				currentTime := time.Now()
+				qrr, err := db.Query("INSERT INTO keystore (`label`,`address`,`key_data`,`key_next`,`created_at`) values ('test',?,hex(aes_encrypt(?,?)),hex(aes_encrypt(?,?)),?);",address,pvEn[0],os.Getenv("Secret_Key1"),pvEn[1],os.Getenv("Secret_Key2"),currentTime.Format("2006.01.02 15:04:05"))
 				if err != nil {
 					fmt.Println(err)
 					fmt.Println(qrr)
@@ -86,7 +93,6 @@ func CreateAddress(c *gin.Context) {
 		}
 	}
 }
-
 
 func in_array(val interface{}, array interface{}) (exists bool) {
 	exists = false
