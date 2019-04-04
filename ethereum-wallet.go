@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"context"
+	"crypto/ecdsa"
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gin-gonic/gin"
@@ -35,5 +36,19 @@ func CreateAddress(c *gin.Context) {
 		})
 	} else {
 		db, err := sql.Open("mysql", "sqluser@tcp(127.0.0.1:3306)/ethereum")
+		if err != nil {
+			c.JSON(200,gin.H{
+				"success":false,
+				"message":"DB Connection Failed",
+			})
+		} else {
+			privateKey, err := crypto.GenerateKey()
+			if err != nil {
+				c.JSON(200,gin.H{
+					"success":false,
+					"message":"Address Generation Failed",
+				})
+			}
+		}
 	}
 }
