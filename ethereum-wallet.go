@@ -41,7 +41,7 @@ func CreateAddress(c *gin.Context) {
 			"message": "Access Denied",
 		})
 	} else {
-		db, err := sql.Open("mysql", "sqluser@tcp(127.0.0.1:3306)/ethereum")
+		db, err := sql.Open("mysql", "root@tcp(127.0.0.1:3306)/ethereum")
 		if err != nil {
 			c.JSON(200,gin.H{
 				"success":false,
