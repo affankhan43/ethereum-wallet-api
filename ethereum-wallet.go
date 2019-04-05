@@ -173,27 +173,27 @@ func CheckDeposits(c *gin.Context) {
 												receipt, err := client.TransactionReceipt(context.Background(), tx.Hash())
 												if err != nil {
 													c.JSON(200,gin.H{
-                                          "success":false,
-                                          "message":"Blockchain Connection Failed",
-                                          })
-                                    }
-                                    //fmt.Println(receipt.Status)
-                                    if receipt.Status == 1 {
-                                       fmt.Println(aid)
-                                       conf:=header.Number.Int64()-int64(previous)
-                                       sconf:=strconv.FormatInt(conf, 10)
-                                       value := new(big.Float)
-                                       value.SetString(tx.Value().String())
-                                       ethValue := new(big.Float).Quo(value, big.NewFloat(math.Pow10(18)))
-                                       transactions[txno] = map[string]string{}
-                                       transactions[txno]["coin"]="ETH"
-                                       transactions[txno]["txid"]=tx.Hash().String()
-                                       transactions[txno]["to"]=tx.To().String()
-                                       transactions[txno]["value"]=ethValue.String()
-                                       transactions[txno]["confirmation"]=sconf
-                                       txno+=1
-                                    }
-                                 } else if v, found := erc20s[tx.To().String()]; found {
+														"success":false,
+														"message":"Blockchain Connection Failed",
+													})
+												}
+												//fmt.Println(receipt.Status)
+												if receipt.Status == 1 {
+													fmt.Println(aid)
+													conf:=header.Number.Int64()-int64(previous)
+													sconf:=strconv.FormatInt(conf, 10)
+													value := new(big.Float)
+													value.SetString(tx.Value().String())
+													ethValue := new(big.Float).Quo(value, big.NewFloat(math.Pow10(18)))
+													transactions[txno] = map[string]string{}
+													transactions[txno]["coin"]="ETH"
+													transactions[txno]["txid"]=tx.Hash().String()
+													transactions[txno]["to"]=tx.To().String()
+													transactions[txno]["value"]=ethValue.String()
+													transactions[txno]["confirmation"]=sconf
+													txno+=1
+												}
+											} else if v, found := erc20s[tx.To().String()]; found {
                                     fmt.Println(v)
                                     receipt, err := client.TransactionReceipt(context.Background(), tx.Hash())
                                     if err != nil {
