@@ -193,43 +193,11 @@ func CheckDeposits(c *gin.Context) {
 													transactions[txno]["confirmation"]=sconf
 													txno+=1
 												}
-											} else if v, found := erc20s[tx.To().String()]; found {
-                                    fmt.Println(v)
-                                    receipt, err := client.TransactionReceipt(context.Background(), tx.Hash())
-                                    if err != nil {
-                                       fmt.Println(err)
-                                    }
-                                    if receipt.Status == 1 {
-                                       if len(receipt.Logs) > 0 && len(receipt.Logs[0].Topics) == 3 {
-                                          // jsonString,_:=json.Marshal(receipt.Logs[0])
-                                          // fmt.Println(string(jsonString))
-                                          to:=common.BytesToAddress(receipt.Logs[0].Topics[2].Bytes())
-                                          if aids, fds := addresses[to.String()]; fds {
-                                             fmt.Println(aids)
-                                             transactions[txno] = map[string]string{}
-                                             //from:=common.BytesToAddress(receipt.Logs[0].Topics[1].Bytes())
-                                             b := big.NewInt(0)
-                                             val:=b.SetBytes(receipt.Logs[0].Data)
-                                             conf:=header.Number.Int64()-int64(previous)
-                                             sconf:=strconv.FormatInt(conf, 10)
-                                             value := new(big.Float)
-                                             value.SetString(val.String())
-                                             powd,_:= strconv.Atoi(v["dec"])
-                                             ethValue := new(big.Float).Quo(value, big.NewFloat(math.Pow10(powd)))
-                                             transactions[txno]["coin"]=v["token"]
-                                             transactions[txno]["txid"]=tx.Hash().String()
-                                             transactions[txno]["to"]=to.String()
-                                             transactions[txno]["value"]=ethValue.String()
-                                             transactions[txno]["confirmation"]=sconf
-                                             txno+=1
-                                          }
-                                       }
-                                    }
-                                 }
-                              }
-                           }
-                           previous+=int64(1)
-                        }
+											}
+										}
+									}
+									previous+=int64(1)
+								}
                      }
                      c.JSON(200, gin.H{
                         "success":true,
