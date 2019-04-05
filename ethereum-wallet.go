@@ -46,7 +46,6 @@ func CreateAddress(c *gin.Context) {
 		})
 	} else {
 		mysql_string:=os.Getenv("Mysql_access")+"@tcp("+os.Getenv("Mysql_link")+")/ethereum"
-		fmt.Println(mysql_string)
 		db, err := sql.Open("mysql", mysql_string)
 		if err != nil {
 			c.JSON(200,gin.H{
@@ -92,6 +91,166 @@ func CreateAddress(c *gin.Context) {
 			}
 		}
 	}
+}
+
+func CheckDeposits(c *gin.Context) {
+	var required Check
+	if err := c.BindJSON(&required); err != nil || required.Auth.Coin != "ETH" || required.Auth.Message != "Check_deposita" || required.Auth.Key != "getaccess" {
+		c.JSON(200, gin.H{
+			"success": false,
+			"message": "Access Denied",
+		})
+	} else{
+		mysql_string:=os.Getenv("Mysql_access")+"@tcp("+os.Getenv("Mysql_link")+")/ethereum"
+		db, err := sql.Open("mysql", mysql_string)
+		if err != nil {
+			c.JSON(200,gin.H{
+				"success":false,
+				"message":"DB Connection Failed",
+			})
+		} else{
+         results, err := db.Query("SELECT id,address FROM keystore")
+         if err != nil || err1 != nil{
+            c.JSON(200,gin.H{
+               "success":false,
+               "message":"DB Connection Failed",
+               })
+         } else {
+            //addresses:= []string{}
+            addresses:= map[string]int{}
+            erc20s:= map[string]map[string]string{}
+            for results.Next() {
+               var address string
+               var id int
+               err = results.Scan(&id,&address)
+               if err != nil {
+                  fmt.Println(err)
+               }
+               addresses[address] = id
+            }
+            for results1.Next() {
+               var address string
+               var token string
+               var dec_precision int
+               err = results1.Scan(&address,&token,&dec_precision)
+               if err != nil {
+                  fmt.Println(err)
+               }
+               erc20s[address] = map[string]string{}
+               erc20s[address]["token"]=token
+               erc20s[address]["dec"]=strconv.Itoa(dec_precision)
+            }
+            client, err := ethclient.Dial("https://mainnet.infura.io")
+            if err != nil {
+               c.JSON(200,gin.H{
+                  "success":false,
+                  "message":"Blockchain Connection Failed",
+                  })
+            } else {
+               header, err := client.HeaderByNumber(context.Background(), nil)
+               if err != nil {
+                  c.JSON(200,gin.H{
+                     "success":false,
+                     "message":"Blockchain Connection Failed",
+                     })
+               } else{
+                  latest:=header.Number.Int64()-11
+                  checkno:=latest-int64(required.Previous)
+                  previous:= int64(required.Previous)
+                  var transactions = map[int]map[string]string{}
+                  txno:=0
+                  if checkno <= 0 {
+                     c.JSON(200,gin.H{
+                        "success":true,
+                        "transactions":transactions,
+                        "latest":latest,
+                        })
+                  } else {
+                     for i:=int64(0); i<checkno; i++ {
+                        blockNumber := big.NewInt(previous)
+                        fmt.Println(previous)
+                        block, err := client.BlockByNumber(context.Background(), blockNumber)
+                        if err != nil {
+                           c.JSON(200,gin.H{
+                              "success":false,
+                              "message":"Blockchain Connection Failed",
+                              })
+                        } else{
+                           for _, tx := range block.Transactions() {
+                              if tx.To() != nil{
+                                 if aid, founds := addresses[tx.To().String()]; founds {
+                                    receipt, err := client.TransactionReceipt(context.Background(), tx.Hash())
+                                    if err != nil {
+                                       c.JSON(200,gin.H{
+                                          "success":false,
+                                          "message":"Blockchain Connection Failed",
+                                          })
+                                    }
+                                    //fmt.Println(receipt.Status)
+                                    if receipt.Status == 1 {
+                                       fmt.Println(aid)
+                                       conf:=header.Number.Int64()-int64(previous)
+                                       sconf:=strconv.FormatInt(conf, 10)
+                                       value := new(big.Float)
+                                       value.SetString(tx.Value().String())
+                                       ethValue := new(big.Float).Quo(value, big.NewFloat(math.Pow10(18)))
+                                       transactions[txno] = map[string]string{}
+                                       transactions[txno]["coin"]="ETH"
+                                       transactions[txno]["txid"]=tx.Hash().String()
+                                       transactions[txno]["to"]=tx.To().String()
+                                       transactions[txno]["value"]=ethValue.String()
+                                       transactions[txno]["confirmation"]=sconf
+                                       txno+=1
+                                    }
+                                 } else if v, found := erc20s[tx.To().String()]; found {
+                                    fmt.Println(v)
+                                    receipt, err := client.TransactionReceipt(context.Background(), tx.Hash())
+                                    if err != nil {
+                                       fmt.Println(err)
+                                    }
+                                    if receipt.Status == 1 {
+                                       if len(receipt.Logs) > 0 && len(receipt.Logs[0].Topics) == 3 {
+                                          // jsonString,_:=json.Marshal(receipt.Logs[0])
+                                          // fmt.Println(string(jsonString))
+                                          to:=common.BytesToAddress(receipt.Logs[0].Topics[2].Bytes())
+                                          if aids, fds := addresses[to.String()]; fds {
+                                             fmt.Println(aids)
+                                             transactions[txno] = map[string]string{}
+                                             //from:=common.BytesToAddress(receipt.Logs[0].Topics[1].Bytes())
+                                             b := big.NewInt(0)
+                                             val:=b.SetBytes(receipt.Logs[0].Data)
+                                             conf:=header.Number.Int64()-int64(previous)
+                                             sconf:=strconv.FormatInt(conf, 10)
+                                             value := new(big.Float)
+                                             value.SetString(val.String())
+                                             powd,_:= strconv.Atoi(v["dec"])
+                                             ethValue := new(big.Float).Quo(value, big.NewFloat(math.Pow10(powd)))
+                                             transactions[txno]["coin"]=v["token"]
+                                             transactions[txno]["txid"]=tx.Hash().String()
+                                             transactions[txno]["to"]=to.String()
+                                             transactions[txno]["value"]=ethValue.String()
+                                             transactions[txno]["confirmation"]=sconf
+                                             txno+=1
+                                          }
+                                       }
+                                    }
+                                 }
+                              }
+                           }
+                           previous+=int64(1)
+                        }
+                     }
+                     c.JSON(200, gin.H{
+                        "success":true,
+                        "transactions":transactions,
+                        "block":latest,
+                        })
+                  }
+               }
+            }
+         }
+      }
+   }
 }
 
 func in_array(val interface{}, array interface{}) (exists bool) {
