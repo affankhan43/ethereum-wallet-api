@@ -109,14 +109,14 @@ func CheckDeposits(c *gin.Context) {
 				"message":"DB Connection Failed",
 			})
 		} else{
-         results, err := db.Query("SELECT id,address FROM keystore")
-         if err != nil || err1 != nil{
-            c.JSON(200,gin.H{
-               "success":false,
-               "message":"DB Connection Failed",
-               })
-         } else {
-            //addresses:= []string{}
+			results, err := db.Query("SELECT id,address FROM keystore")
+			if err != nil{
+				c.JSON(200,gin.H{
+					"success":false,
+					"message":"DB Connection Failed",
+				})
+			} else {
+				//addresses:= []string{}
             addresses:= map[string]int{}
             erc20s:= map[string]map[string]string{}
             for results.Next() {
