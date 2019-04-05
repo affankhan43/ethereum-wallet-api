@@ -152,16 +152,16 @@ func CheckDeposits(c *gin.Context) {
 						txno:=0
 						if checkno <= 0 {
 							c.JSON(200,gin.H{
-                        "success":true,
-                        "transactions":transactions,
-                        "latest":latest,
-                        })
-                  } else {
-                     for i:=int64(0); i<checkno; i++ {
-                        blockNumber := big.NewInt(previous)
-                        fmt.Println(previous)
-                        block, err := client.BlockByNumber(context.Background(), blockNumber)
-                        if err != nil {
+								"success":true,
+								"transactions":transactions,
+								"latest":latest,
+							})
+						} else {
+							for i:=int64(0); i<checkno; i++ {
+								blockNumber := big.NewInt(previous)
+								fmt.Println(previous)
+								block, err := client.BlockByNumber(context.Background(), blockNumber)
+								if err != nil {
                            c.JSON(200,gin.H{
                               "success":false,
                               "message":"Blockchain Connection Failed",
