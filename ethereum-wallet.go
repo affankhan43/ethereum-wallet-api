@@ -139,19 +139,19 @@ func CheckDeposits(c *gin.Context) {
 					})
 				} else {
 					header, err := client.HeaderByNumber(context.Background(), nil)
-               if err != nil {
-                  c.JSON(200,gin.H{
-                     "success":false,
-                     "message":"Blockchain Connection Failed",
-                     })
-               } else{
-                  latest:=header.Number.Int64()-11
-                  checkno:=latest-int64(required.Previous)
-                  previous:= int64(required.Previous)
-                  var transactions = map[int]map[string]string{}
-                  txno:=0
-                  if checkno <= 0 {
-                     c.JSON(200,gin.H{
+					if err != nil {
+						c.JSON(200,gin.H{
+							"success":false,
+							"message":"Blockchain Connection Failed",
+						})
+					} else{
+						latest:=header.Number.Int64()-11
+						checkno:=latest-int64(required.Previous)
+						previous:= int64(required.Previous)
+						var transactions = map[int]map[string]string{}
+						txno:=0
+						if checkno <= 0 {
+							c.JSON(200,gin.H{
                         "success":true,
                         "transactions":transactions,
                         "latest":latest,
