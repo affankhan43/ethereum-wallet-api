@@ -5,15 +5,19 @@ import (
 	"fmt"
 	"log"
 	"time"
+	"math"
 	"bytes"
+	"context"
 	"reflect"
-	//"context"
+	"strconv"
+	"math/big"
 	"crypto/ecdsa"
 	"database/sql"
 	"github.com/joho/godotenv"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
@@ -131,7 +135,7 @@ func CheckDeposits(c *gin.Context) {
 					}
 					addresses[address] = id
 				}
-				client, err := ethclient.Dial("https://mainnet.infura.io")
+				client, err := ethclient.Dial("https://ropsten.infura.io")
 				if err != nil {
 					c.JSON(200,gin.H{
 						"success":false,
