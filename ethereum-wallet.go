@@ -116,18 +116,16 @@ func CheckDeposits(c *gin.Context) {
 					"message":"DB Connection Failed",
 				})
 			} else {
-				//addresses:= []string{}
-            addresses:= map[string]int{}
-            erc20s:= map[string]map[string]string{}
-            for results.Next() {
-               var address string
-               var id int
-               err = results.Scan(&id,&address)
-               if err != nil {
-                  fmt.Println(err)
-               }
-               addresses[address] = id
-            }
+				addresses:= map[string]int{}
+				for results.Next() {
+					var address string
+					var id int
+					err = results.Scan(&id,&address)
+					if err != nil {
+						fmt.Println(err)
+					}
+					addresses[address] = id
+				}
             for results1.Next() {
                var address string
                var token string
