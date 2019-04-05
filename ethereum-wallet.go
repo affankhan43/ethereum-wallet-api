@@ -162,17 +162,17 @@ func CheckDeposits(c *gin.Context) {
 								fmt.Println(previous)
 								block, err := client.BlockByNumber(context.Background(), blockNumber)
 								if err != nil {
-                           c.JSON(200,gin.H{
-                              "success":false,
-                              "message":"Blockchain Connection Failed",
-                              })
-                        } else{
-                           for _, tx := range block.Transactions() {
-                              if tx.To() != nil{
-                                 if aid, founds := addresses[tx.To().String()]; founds {
-                                    receipt, err := client.TransactionReceipt(context.Background(), tx.Hash())
-                                    if err != nil {
-                                       c.JSON(200,gin.H{
+									c.JSON(200,gin.H{
+										"success":false,
+										"message":"Blockchain Connection Failed",
+									})
+								} else{
+									for _, tx := range block.Transactions() {
+										if tx.To() != nil{
+											if aid, founds := addresses[tx.To().String()]; founds {
+												receipt, err := client.TransactionReceipt(context.Background(), tx.Hash())
+												if err != nil {
+													c.JSON(200,gin.H{
                                           "success":false,
                                           "message":"Blockchain Connection Failed",
                                           })
