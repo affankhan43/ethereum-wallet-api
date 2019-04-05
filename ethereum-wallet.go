@@ -131,26 +131,14 @@ func CheckDeposits(c *gin.Context) {
 					}
 					addresses[address] = id
 				}
-            for results1.Next() {
-               var address string
-               var token string
-               var dec_precision int
-               err = results1.Scan(&address,&token,&dec_precision)
-               if err != nil {
-                  fmt.Println(err)
-               }
-               erc20s[address] = map[string]string{}
-               erc20s[address]["token"]=token
-               erc20s[address]["dec"]=strconv.Itoa(dec_precision)
-            }
-            client, err := ethclient.Dial("https://mainnet.infura.io")
-            if err != nil {
-               c.JSON(200,gin.H{
-                  "success":false,
-                  "message":"Blockchain Connection Failed",
-                  })
-            } else {
-               header, err := client.HeaderByNumber(context.Background(), nil)
+				client, err := ethclient.Dial("https://mainnet.infura.io")
+				if err != nil {
+					c.JSON(200,gin.H{
+						"success":false,
+						"message":"Blockchain Connection Failed",
+					})
+				} else {
+					header, err := client.HeaderByNumber(context.Background(), nil)
                if err != nil {
                   c.JSON(200,gin.H{
                      "success":false,
