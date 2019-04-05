@@ -198,18 +198,18 @@ func CheckDeposits(c *gin.Context) {
 									}
 									previous+=int64(1)
 								}
-                     }
-                     c.JSON(200, gin.H{
-                        "success":true,
-                        "transactions":transactions,
-                        "block":latest,
-                        })
-                  }
-               }
-            }
-         }
-      }
-   }
+							}
+							c.JSON(200, gin.H{
+								"success":true,
+								"transactions":transactions,
+								"block":latest,
+							})
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 func in_array(val interface{}, array interface{}) (exists bool) {
