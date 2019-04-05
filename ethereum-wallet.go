@@ -23,6 +23,11 @@ type Required struct {
 	Key   string `json:"Key" binding:"required"`
 }
 
+type Check struct {
+	Auth Required `json:"auth" binding:"required"`
+	Previous int `json:"previous" binding:"required"`
+}
+
 
 func main() {
 	if err := godotenv.Load(); err != nil {
