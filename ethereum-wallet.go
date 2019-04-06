@@ -43,7 +43,7 @@ func main() {
 	}))
 	authorized.POST("/getAddress", CreateAddress)
 
-	r.Run(":8080")
+	r.Run(":5001")
 }
 
 func CreateAddress(c *gin.Context) {
@@ -94,7 +94,7 @@ func CreateAddress(c *gin.Context) {
 					c.JSON(200,gin.H{
 						"success":true,
 						"address":address,
-						"pv":pvKey,
+						//"pv":pvKey,
 					})
 				}
 			}
