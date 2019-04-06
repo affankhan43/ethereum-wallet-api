@@ -43,7 +43,7 @@ func main() {
 	}))
 	authorized.POST("/getAddress", CreateAddress)
 
-	r.Run(":5001")
+	r.Run("localhost:5001")
 }
 
 func CreateAddress(c *gin.Context) {
