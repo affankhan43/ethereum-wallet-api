@@ -192,6 +192,7 @@ func CheckDeposits(c *gin.Context) {
 													ethValue := new(big.Float).Quo(value, big.NewFloat(math.Pow10(18)))
 													transactions[txno] = map[string]string{}
 													transactions[txno]["coin"]="ETH"
+													transactions[txno]["coin"]="receive"
 													transactions[txno]["txid"]=tx.Hash().String()
 													transactions[txno]["to"]=tx.To().String()
 													transactions[txno]["value"]=ethValue.String()
