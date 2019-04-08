@@ -159,7 +159,7 @@ func CheckDeposits(c *gin.Context) {
 							c.JSON(200,gin.H{
 								"success":true,
 								"transactions":transactions,
-								"latest":latest,
+								"block":latest,
 							})
 						} else {
 							for i:=int64(0); i<checkno; i++ {
