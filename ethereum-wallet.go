@@ -42,6 +42,7 @@ func main() {
 		"ethAPI": "password",
 	}))
 	authorized.POST("/getAddress", CreateAddress)
+	authorized.POST("/getTransactions", CheckDeposits)
 
 	r.Run("localhost:5001")
 }
